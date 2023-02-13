@@ -1,0 +1,19 @@
+[package]
+name = "planner"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = "0.4.3"
+console_engine = { version = "2.5.0", features = ["event", "form"]}
+sqlx = { version = "0.6", features = [ "runtime-actix-native-tls", "postgres", "uuid", "chrono"] }
+actix-web = "4"
+[dependencies.uuid]
+version = "1.3.0"
+features = [
+    "v4",                # Lets you generate random UUIDs
+    "fast-rng",          # Use a faster (but still sufficiently random) RNG
+    "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
+]
