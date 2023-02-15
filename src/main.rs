@@ -16,6 +16,7 @@ struct Todo {
     end_time: Option<i32>,
     time_cost: Option<i32>,
     done: bool,
+    // Add recurring to this, also how often to recur
 }
 
 impl Todo {
@@ -205,10 +206,6 @@ fn draw() {
                     }
                     event => form.handle_event(event)
                 }
-                // Print the TextInput into our screen
-                //engine.print_screen(49, 40,f_text.draw((engine.frame_count % 8 > 3) as usize));
-                //engine.print_screen(5, 1, ) as usize));
-
             }
         }
 
@@ -261,9 +258,6 @@ fn draw() {
 
         engine.draw();
     }
-    // Manually break when the user press enter or escape
-
-
 }
 
 fn draw_day(engine: &mut ConsoleEngine, day: &Day) {
@@ -301,6 +295,9 @@ fn check_mouse_position_days(mouse_x: i32, mouse_y: i32, days: &mut Vec<Vec<Day>
         return None;
     }
     return None;
+}
+
+fn draw_overlay(engine: &mut ConsoleEngine) {
 }
 
 fn check_mouse_position_other(mouse_x: i32, mouse_y: i32, other: &Vec<Day>) -> Option<(usize, i32)>{
