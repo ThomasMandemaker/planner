@@ -4,6 +4,7 @@ use console_engine::forms::{FormField, FormOptions, FormValue, Form, Text};
 use console_engine::events::Event;
 use console_engine::rect_style::BorderStyle;
 use console_engine::{pixel, KeyCode, MouseButton, ConsoleEngine, KeyModifiers};
+use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 use sqlx::postgres::PgPoolOptions;
 
@@ -110,7 +111,7 @@ async fn main() -> Result<(), sqlx::Error> {
         index = index + 1;
     }
 
-    draw();
+    draw(pool);
     //scr.draw();
     // print the screen to the terminal
     Ok(())
@@ -118,7 +119,7 @@ async fn main() -> Result<(), sqlx::Error> {
 
 
 
-fn draw() {
+async fn draw(mut pool: Pool<Postgres>) {
     let mut engine = console_engine::ConsoleEngine::init_fill(30).unwrap();
     let mut days: Vec<Vec<Day>> = vec!(Vec::new());
     let mut other: Vec<Day> = Vec::new();
@@ -135,7 +136,7 @@ fn draw() {
 
     let mut debug = -1; 
     let mut debug_x_rel = -1; 
-    let mut debug_y = -1; 
+    let mut debug_y = -1;
     let mut debug_y_rel = -1; 
     let mut debug_pos = -1;
 
@@ -152,8 +153,11 @@ fn draw() {
 
     let mut form = Form::new(30, 10, FormOptions {..Default::default()});
     form.build_field::<Text>("name", FormOptions { label: Some("Name"), ..Default::default()});
+    form.build_field::<Text>("description", FormOptions { label: Some("Description"), ..Default::default()});
     let mut f_text = console_engine::forms::Text::new(30, FormOptions::default());
-    //f_text.set_active(true);
+
+
+    // On form finish, push to the database and add to unassigned_todos
 
     loop {
         engine.wait_frame();
@@ -207,6 +211,16 @@ fn draw() {
                     event => form.handle_event(event)
                 }
             }
+            let name = form.get_field_output("name").unwrap();
+            let description = form.get_field_output("description").unwrap();
+            match (name, description) {
+                (FormValue::String(n), FormValue::String(b)) =>{
+                    sqlx::query("INSERT INTO todo (name, description) VALUES ($1,$2)").bind(n).bind(b).execute(&pool).await;
+                },
+                _ => {}, 
+            }
+            //if let FormValue::String(n) = name && let FormValue::String(dd) = description {}
+            //name.to_owned();
         }
 
 
@@ -298,6 +312,7 @@ fn check_mouse_position_days(mouse_x: i32, mouse_y: i32, days: &mut Vec<Vec<Day>
 }
 
 fn draw_overlay(engine: &mut ConsoleEngine) {
+
 }
 
 fn check_mouse_position_other(mouse_x: i32, mouse_y: i32, other: &Vec<Day>) -> Option<(usize, i32)>{
